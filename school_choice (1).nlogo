@@ -69,13 +69,18 @@ to go-once
 ;      ifelse count students-here >= capacity [ set full TRUE ] [ set full FALSE ]
 ;    ]
     ask searchers [
+      apply
+    ]
+    ask schools [
       decide
+    ]
+    ask searchers [
       move
     ]
   ]
 end
 
-to decide
+to apply
   let potential-schools schools with [ not full ] ;; the student will select from the schools that accept students
 
   ;; the decision trees of different classes appear
@@ -89,6 +94,7 @@ to decide
           status = 1 AND
           ege > i
         ]
+        create-link-to best-fit
       ]
     ]
     ]
@@ -112,8 +118,11 @@ to decide
 
 end
 
+to decide 
+
+end
+
 to move
-  create-link-to best-fit
   face best-fit
   ifelse distance best-fit > 2 [ fd 2 ] [ fd distance best-fit ]
 end
