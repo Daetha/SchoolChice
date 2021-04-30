@@ -39,6 +39,7 @@ to setup
     set capacity num-students / num-schools ;; all equal size, so far
     set ethnic-share random-normal 0.07 0.03 ;; on average, there are 7% ethnic minority students at schools -- will calibrate that
     set full FALSE
+    set count-students 0
   ]
   create-students num-students [
     (ifelse random 100 < share-working-class [ ;; the number of working-class students will be about the stated share
@@ -121,11 +122,35 @@ end
 to decide 
 
 end
+to SchoolDecide
+  ask schools [
+    if count-students >= capacity [ set full TRUE ]
+    while [full = FALSE][
+   
+      ask link-neighbors [
 
-to move
-  face best-fit
-  ifelse distance best-fit > 2 [ fd 2 ] [ fd distance best-fit ]
+        ifelse  [status] of myself = 1 
+          [ifelse class = "middle" [accept][reject]]
+        [ifelse  [ethnic-share] of myself < 0.1 
+            [ifelse class = "middle" [accept][reject]]
+            [ifelse class = "middle" and ethnic-minority = FALSE [accept][reject]]
+          ]  
+     ]
+   ]
+  ]
 end
+to accept       
+    move-to myself 
+    ask myself [ 
+    set count-students count-students + 1 ] 
+  
+  
+end        
+to reject         
+    set best-fit nobody  
+    ; убить линк со школой
+    ; записать школу в список разочарований
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
