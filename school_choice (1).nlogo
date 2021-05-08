@@ -16,6 +16,8 @@ students-own
   ethnic-minority
   best-fit
   assigned
+  desired-ege
+  delta
 ]
 
 to setup
@@ -45,9 +47,13 @@ to setup
     (ifelse random 100 < share-working-class [ ;; the number of working-class students will be about the stated share
       set color 95
       set class "working"
+      set desired-ege 70
+      set delta 10
     ] [
       set color 5
       set class "middle"
+      set desired-ege 90
+      set delta 5
       ]
     )
     setxy random-xcor random-ycor
@@ -83,20 +89,22 @@ end
 
 to apply
   let potential-schools schools with [ not full ] ;; the student will select from the schools that accept students
-
+  let desired-schools potential-schools with [
+          status = 1 AND
+          ege > desired-ege]
   ;; the decision trees of different classes appear
 
   (ifelse class = "middle" [
     ;; threshold for a turtle
     ;; stopping condition
-    foreach [ 90 85 80 75 ] [ i ->
-      if best-fit = nobody [
-        set best-fit one-of potential-schools with [
+   ask turtles [
+      while [not any? desired-schools] [
+        set desired-ege (desired-ege - delta)
+        set desired-schools potential-schools with [
           status = 1 AND
-          ege > i
-        ]
-        create-link-to best-fit
+    ege > desired-ege]
       ]
+      set best-fit min-one-of desired-schools [distance myself]
     ]
     ]
     class = "working" [
